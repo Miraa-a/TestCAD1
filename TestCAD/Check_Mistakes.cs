@@ -25,11 +25,26 @@ namespace TestCAD
             }
             var copy = p.Skip(1).Take(p.Count - 1);
             //bool check = false;
-            IEnumerable<Vector2> repeatPoint = Repeat(copy);//проверяем на повторы вторую часть группы без последнего элемента
+            Dictionary<Vector2, int> repeatPoint = Repeat(copy);//проверяем на повторы вторую часть группы без последнего элемента
             if (check){
                 foreach (var v in repeatPoint){
-                    int tmp = copy.ToList().IndexOf(v);
-                    p.RemoveAt(tmp + 1);
+                    int tmp = copy.ToList().IndexOf(v.Key);
+                    if (v.Value != 0)
+                    {
+                        for (int j = 0; j <= v.Value; j++)
+                        {
+                            for (int i = 0; i < p.Count; i++)
+                            {
+                                if (v.Key == p[i])
+                                {
+                                    if (i != tmp)
+                                    {
+                                        p.RemoveAt(tmp);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             check = false;
@@ -39,20 +54,35 @@ namespace TestCAD
             {
                 foreach (var v in repeatPoint)
                 {
-                    int tmp = copy.ToList().LastIndexOf(v);
-                    p.RemoveAt(tmp);
+                    int tmp = copy.ToList().IndexOf(v.Key);
+                    if (v.Value != 0)
+                    {
+                        for (int j = 0; j <= v.Value; j++)
+                        {
+                            for (int i = 0; i < p.Count; i++)
+                            {
+                                if (v.Key == p[i])
+                                {
+                                    if (i != tmp)
+                                    {
+                                        p.RemoveAt(tmp);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             check = false;
             return p;
         } 
-        private static IEnumerable<Vector2> Repeat(IEnumerable <Vector2> p)
+        private static Dictionary<Vector2, int> Repeat(IEnumerable <Vector2> p)
         {
-           // bool check;
+            // bool check;
             var repeatPoint = p.GroupBy(x => x)
               .Where(g => g.Count() > 1)
-              .Select(y => y.Key)
-              .ToList();//группируем элементы на основе их значения, затем выбираем представителя группы, если в группе более одного элемента
+              .ToDictionary(x => x.Key, y => y.Count());
+            //группируем элементы на основе их значения, затем выбираем представителя группы, если в группе более одного элемента
             if (repeatPoint.Count != 0)//в группе есть повторы
             {
                 check = true;
